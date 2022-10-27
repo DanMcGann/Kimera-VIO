@@ -22,7 +22,6 @@
 #include "kimera-vio/frontend/VisionImuFrontend-definitions.h"
 #include "kimera-vio/frontend/VisionImuFrontendParams.h"
 #include "kimera-vio/imu-frontend/ImuFrontendParams.h"
-#include "kimera-vio/loopclosure/LoopClosureDetectorParams.h"
 #include "kimera-vio/visualizer/DisplayParams.h"
 #include "kimera-vio/visualizer/OpenCvDisplay.h" // for ocv display params...
 
@@ -38,7 +37,6 @@ VioParams::VioParams(const std::string& params_folder_path)
                 "RightCameraParams.yaml",
                 "FrontendParams.yaml",
                 "BackendParams.yaml",
-                "LcdParams.yaml",
                 "DisplayParams.yaml") {}
 
 VioParams::VioParams(const std::string& params_folder_path,
@@ -48,15 +46,13 @@ VioParams::VioParams(const std::string& params_folder_path,
                      const std::string& right_cam_params_filename,
                      const std::string& frontend_params_filename,
                      const std::string& backend_params_filename,
-                     const std::string& lcd_params_filename,
                      const std::string& display_params_filename)
     : PipelineParams("VioParams"),
       // Actual VIO Parameters
       imu_params_(),
       camera_params_(),
       frontend_params_(),
-      backend_params_(std::make_shared<BackendParams>()),
-      lcd_params_(),
+      backend_params_(std::make_shared<BackendParams>()),,
       display_params_(std::make_shared<DisplayParams>(DisplayType::kOpenCV)),
       frontend_type_(FrontendType::kStereoImu),
       backend_type_(BackendType::kStructuralRegularities),
@@ -68,7 +64,6 @@ VioParams::VioParams(const std::string& params_folder_path,
       right_cam_params_filename_(right_cam_params_filename),
       frontend_params_filename_(frontend_params_filename),
       backend_params_filename_(backend_params_filename),
-      lcd_params_filename_(lcd_params_filename),
       display_params_filename_(display_params_filename) {
   if (!params_folder_path.empty()) {
     parseYAML(params_folder_path);
@@ -126,9 +121,6 @@ bool VioParams::parseYAML(const std::string& folder_path) {
   parsePipelineParams(folder_path + '/' + frontend_params_filename_,
                       &frontend_params_);
 
-  // Parse LcdParams
-  parsePipelineParams(folder_path + '/' + lcd_params_filename_, &lcd_params_);
-
   // Parse DisplayParams
   switch (display_type_) {
     case DisplayType::kOpenCV: {
@@ -161,7 +153,6 @@ void VioParams::print() const {
   frontend_params_.print();
   CHECK(backend_params_);
   backend_params_->print();
-  lcd_params_.print();
   CHECK(display_params_);
   display_params_->print();
   LOG(INFO) << "Frontend Type: " << VIO::to_underlying(frontend_type_);

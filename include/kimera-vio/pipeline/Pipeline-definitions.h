@@ -22,7 +22,6 @@
 #include "kimera-vio/frontend/VisionImuFrontend-definitions.h"
 #include "kimera-vio/frontend/VisionImuFrontendParams.h"
 #include "kimera-vio/imu-frontend/ImuFrontendParams.h"
-#include "kimera-vio/loopclosure/LoopClosureDetectorParams.h"
 #include "kimera-vio/visualizer/DisplayParams.h"
 
 namespace VIO {
@@ -51,7 +50,6 @@ struct VioParams : public PipelineParams {
    * ├── RightCameraParams.yaml
    * ├── FrontendParams.yaml
    * ├── BackendParams.yaml
-   * ├── LcdParams.yaml
    * └── DisplayParams.yaml
    *
    * NOTE: If you wish to parse filenames different than the ones above, you can
@@ -78,7 +76,6 @@ struct VioParams : public PipelineParams {
    * @param right_camera_params_filename Right Camera params YAML file name.
    * @param frontend_params_filename Frontend params YAML file name.
    * @param backend_params_filename Backend params YAML file name.
-   * @param lcd_params_filename Loop closure params YAML file name.
    * @param display_params_filename Display params YAML file name.
    */
   VioParams(const std::string& params_folder_path,
@@ -88,7 +85,6 @@ struct VioParams : public PipelineParams {
             const std::string& right_cam_params_filename,
             const std::string& frontend_params_filename,
             const std::string& backend_params_filename,
-            const std::string& lcd_params_filename,
             const std::string& display_params_filename);
   virtual ~VioParams() = default;
 
@@ -99,7 +95,6 @@ struct VioParams : public PipelineParams {
    * - CameraParams
    * - FrontendParams
    * - BackendParams
-   * - LcdParams
    * - DisplayParams
    *
    * @return true if all parsing went ok.
@@ -121,7 +116,6 @@ struct VioParams : public PipelineParams {
   //! Mind that this is shared btw the vio pipeline and dataprovider,
   //!  so that any changes to this pointer will affect both.
   BackendParams::Ptr backend_params_;
-  LoopClosureDetectorParams lcd_params_;
   DisplayParams::Ptr display_params_;
   //! General Pipeline parameters
   FrontendType frontend_type_;
@@ -142,7 +136,6 @@ struct VioParams : public PipelineParams {
         frontend_type_ == rhs.frontend_type_ &&
         backend_type_ == rhs.backend_type_ &&
         display_type_ == rhs.display_type_ &&
-        lcd_params_ == rhs.lcd_params_ &&
         display_params_ == rhs.display_params_ &&
         parallel_run_ == rhs.parallel_run_;
   }
@@ -155,7 +148,6 @@ struct VioParams : public PipelineParams {
   std::string right_cam_params_filename_;
   std::string frontend_params_filename_;
   std::string backend_params_filename_;
-  std::string lcd_params_filename_;
   std::string display_params_filename_;
 };
 

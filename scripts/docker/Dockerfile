@@ -65,23 +65,6 @@ RUN cd opengv/build && \
       -DEIGEN_INCLUDE_DIR=$DIRPATH/gtsam/gtsam/3rdparty/Eigen .. && \
       make -j$(nproc) install
 
-# Install DBoW2
-RUN git clone https://github.com/dorian3d/DBoW2.git
-RUN cd DBoW2 && \
-      mkdir build && \
-      cd build && \
-      cmake .. && \
-      make -j$(nproc) install
-
-# Install RobustPGO
-ADD https://api.github.com/repos/MIT-SPARK/Kimera-RPGO/git/refs/heads/master version.json
-RUN git clone https://github.com/MIT-SPARK/Kimera-RPGO.git
-RUN cd Kimera-RPGO && \
-      mkdir build && \
-      cd build && \
-      cmake .. && \
-      make -j$(nproc)
-
 ## [Optional] Install Kimera-VIO-Evaluation from PyPI
 RUN apt-get update && \
     apt-get install software-properties-common -y

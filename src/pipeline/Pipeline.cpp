@@ -42,11 +42,6 @@ DEFINE_int32(min_num_obs_for_mesher_points,
              4,
              "Minimum number of observations for a smart factor's landmark to "
              "to be used as a 3d point to consider for the mesher.");
-
-DEFINE_bool(use_lcd,
-            false,
-            "Enable LoopClosureDetector processing in pipeline.");
-
 namespace VIO {
 
 Pipeline::Pipeline(const VioParams& params)
@@ -59,7 +54,6 @@ Pipeline::Pipeline(const VioParams& params)
       vio_frontend_module_(nullptr),
       vio_backend_module_(nullptr),
       mesher_module_(nullptr),
-      lcd_module_(nullptr),
       visualizer_module_(nullptr),
       display_module_(nullptr),
       frontend_input_queue_("frontend_input_queue"),
@@ -68,7 +62,6 @@ Pipeline::Pipeline(const VioParams& params)
       frontend_thread_(nullptr),
       backend_thread_(nullptr),
       mesher_thread_(nullptr),
-      lcd_thread_(nullptr),
       visualizer_thread_(nullptr) {
   if (FLAGS_deterministic_random_number_generator) {
     setDeterministicPipeline();
@@ -120,10 +113,6 @@ std::string Pipeline::printStatus() const {
              ? ("Mesher is working? " +
                 std::string(mesher_module_->isWorking() ? "Yes" : "No"))
              : "No mesher module.")
-     << '\n'
-     << (lcd_module_ ? ("LCD is working? " +
-                        std::string(lcd_module_->isWorking() ? "Yes" : "No"))
-                     : "No LCD module.")
      << '\n'
      << (visualizer_module_
              ? ("Visualizer is working? " +
@@ -186,8 +175,6 @@ void Pipeline::spinSequential() {
 
   if (mesher_module_) mesher_module_->spin();
 
-  if (lcd_module_) lcd_module_->spin();
-
   if (visualizer_module_) visualizer_module_->spin();
 
   if (display_module_) display_module_->spin();
@@ -213,7 +200,6 @@ bool Pipeline::hasFinished() const {
          (backend_input_queue_.isShutdown() || backend_input_queue_.empty()) &&
          !vio_backend_module_->isWorking() &&
          (mesher_module_ ? !mesher_module_->isWorking() : true) &&
-         (lcd_module_ ? !lcd_module_->isWorking() : true) &&
          (visualizer_module_ ? !visualizer_module_->isWorking() : true) &&
          (display_input_queue_.isShutdown() || display_input_queue_.empty()) &&
          (display_module_ ? !display_module_->isWorking() : true))));
@@ -284,11 +270,6 @@ void Pipeline::launchThreads() {
           &MesherModule::spin, CHECK_NOTNULL(mesher_module_.get()));
     }
 
-    if (lcd_module_) {
-      lcd_thread_ = VIO::make_unique<std::thread>(
-          &LcdModule::spin, CHECK_NOTNULL(lcd_module_.get()));
-    }
-
     if (visualizer_module_) {
       visualizer_thread_ = VIO::make_unique<std::thread>(
           &VisualizerModule::spin, CHECK_NOTNULL(visualizer_module_.get()));
@@ -313,7 +294,6 @@ void Pipeline::stopThreads() {
   vio_frontend_module_->shutdown();
 
   if (mesher_module_) mesher_module_->shutdown();
-  if (lcd_module_) lcd_module_->shutdown();
   if (visualizer_module_) visualizer_module_->shutdown();
   if (display_module_) {
     display_input_queue_.shutdown();
@@ -332,7 +312,6 @@ void Pipeline::joinThreads() {
   joinThread("Backend", backend_thread_.get());
   joinThread("Frontend", frontend_thread_.get());
   joinThread("mesher", mesher_thread_.get());
-  joinThread("lcd", lcd_thread_.get());
   joinThread("visualizer", visualizer_thread_.get());
 
   VLOG(1) << "All threads joined.";

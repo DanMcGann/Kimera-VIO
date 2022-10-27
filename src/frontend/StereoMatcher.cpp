@@ -124,8 +124,6 @@ void StereoMatcher::sparseStereoReconstruction(StereoFrame* stereo_frame) {
   CHECK_NOTNULL(stereo_frame);
   //! Undistort rectify left/right images
   // CHECK(!stereo_frame->isRectified());
-  // TODO(marcus): LoopClosureDetector rewrites stereoframes that are already
-  //   rectified using this function! That's why the above check doesn't work...
   if (stereo_frame->isRectified()) {
     LOG(WARNING) << "sparseStereoMatching: StereoFrame is already rectified!";
   }

@@ -34,14 +34,6 @@ find_package(Glog 0.3.5 REQUIRED)
 find_package(GTSAM REQUIRED)
 find_package(opengv REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(DBoW2 REQUIRED)
-if(NOT TARGET DBoW2::DBoW2)
-  add_library(DBoW2::DBoW2 INTERFACE IMPORTED)
-  set_target_properties(DBoW2::DBoW2 PROPERTIES
-  INTERFACE_LINK_LIBRARIES "${DBoW2_LIBRARIES}"
-  INTERFACE_INCLUDE_DIRECTORIES "${DBoW2_INCLUDE_DIRS}")
-endif()
-find_package(KimeraRPGO REQUIRED)
 # Pangolin is optional
 find_package(Pangolin QUIET)
 
@@ -113,9 +105,6 @@ add_subdirectory(src/pipeline)
 ### Add source code for common
 add_subdirectory(include/kimera-vio/common)
 add_subdirectory(src/common)
-### Add source code for loopclosure
-add_subdirectory(include/kimera-vio/loopclosure)
-add_subdirectory(src/loopclosure)
 ### Add source code for logging
 add_subdirectory(include/kimera-vio/logging)
 add_subdirectory(src/logging)
@@ -132,8 +121,6 @@ add_subdirectory(src/third_party/triangle)
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
     opengv
-    DBoW2::DBoW2
-    KimeraRPGO
   PUBLIC
     Boost::boost
     ${OpenCV_LIBRARIES}
@@ -238,7 +225,6 @@ if(KIMERA_BUILD_TESTS)
     tests/testImuFrontend.cpp
     tests/testImuParams.cpp
     # tests/testKittiDataProvider.cpp # TODO
-    tests/testLoopClosureDetector.cpp
     tests/testLogger.cpp
     tests/testMesher.cpp # rotten
     tests/testMesh.cpp

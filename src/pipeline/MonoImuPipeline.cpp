@@ -141,31 +141,11 @@ MonoImuPipeline::MonoImuPipeline(const VioParams& params,
   //                 std::placeholders::_1));
   // }
 
-  if (FLAGS_use_lcd) {
-    lcd_module_ = VIO::make_unique<LcdModule>(
-        parallel_run_,
-        LcdFactory::createLcd(LoopClosureDetectorType::BoW,
-                              params.lcd_params_,
-                              stereo_cam,
-                              params.frontend_params_.stereo_matching_params_,
-                              FLAGS_log_output));
-    //! Register input callbacks
-    vio_backend_module_->registerOutputCallback(
-        std::bind(&LcdModule::fillBackendQueue,
-                  std::ref(*CHECK_NOTNULL(lcd_module_.get())),
-                  std::placeholders::_1));
-    vio_frontend_module_->registerOutputCallback(
-        std::bind(&LcdModule::fillFrontendQueue,
-                  std::ref(*CHECK_NOTNULL(lcd_module_.get())),
-                  std::placeholders::_1));
-  }
-
   if (FLAGS_visualize) {
     visualizer_module_ = VIO::make_unique<VisualizerModule>(
         //! Send ouput of visualizer to the display_input_queue_
         &display_input_queue_,
         parallel_run_,
-        FLAGS_use_lcd,
         // Use given visualizer if any
         visualizer ? std::move(visualizer)
                    : VisualizerFactory::createVisualizer(
@@ -201,13 +181,6 @@ MonoImuPipeline::MonoImuPipeline(const VioParams& params,
     //                 std::ref(*CHECK_NOTNULL(visualizer_module_.get())),
     //                 std::placeholders::_1));
     // }
-
-    if (lcd_module_) {
-      lcd_module_->registerOutputCallback(
-          std::bind(&VisualizerModule::fillLcdQueue,
-                    std::ref(*CHECK_NOTNULL(visualizer_module_.get())),
-                    std::placeholders::_1));
-    }
 
     //! Actual displaying of visual data is done in the main thread.
     CHECK(params.display_params_);

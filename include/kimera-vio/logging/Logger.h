@@ -21,7 +21,6 @@
 #include <unordered_map>
 
 #include "kimera-vio/backend/VioBackend-definitions.h"
-#include "kimera-vio/loopclosure/LoopClosureDetector-definitions.h"
 #include "kimera-vio/mesh/Mesh.h"
 
 namespace VIO {
@@ -234,30 +233,6 @@ class PipelineLogger {
  private:
   // Filenames to be saved in the output folder.
   OfstreamWrapper output_pipeline_timing_;
-};
-
-class LoopClosureDetectorLogger {
- public:
-  KIMERA_POINTER_TYPEDEFS(LoopClosureDetectorLogger);
-  KIMERA_DELETE_COPY_CONSTRUCTORS(LoopClosureDetectorLogger);
-  LoopClosureDetectorLogger();
-  virtual ~LoopClosureDetectorLogger() = default;
-
-  void logTimestampMap(
-      const std::unordered_map<VIO::FrameId, VIO::Timestamp>& ts_map);
-  void logLCDResult(const LcdOutput& lcd_output);
-  void logLoopClosure(const LcdOutput& lcd_output);
-  void logOptimizedTraj(const LcdOutput& lcd_output);
-  void logDebugInfo(const LcdDebugInfo& debug_info);
-
- private:
-  // Filenames to be saved in the output folder.
-  OfstreamWrapper output_lcd_;
-  OfstreamWrapper output_traj_;
-  OfstreamWrapper output_status_;
-  FrameIDTimestampMap ts_map_;
-  bool is_header_written_lcd_ = false;
-  bool is_header_written_status_ = false;
 };
 
 }  // namespace VIO

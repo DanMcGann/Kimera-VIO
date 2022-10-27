@@ -141,33 +141,11 @@ StereoImuPipeline::StereoImuPipeline(const VioParams& params,
         });
   }
 
-  if (FLAGS_use_lcd) {
-    lcd_module_ = VIO::make_unique<LcdModule>(
-        parallel_run_,
-        LcdFactory::createLcd(LoopClosureDetectorType::BoW,
-                              params.lcd_params_,
-                              stereo_camera_,
-                              params.frontend_params_.stereo_matching_params_,
-                              FLAGS_log_output));
-    //! Register input callbacks
-    vio_backend_module_->registerOutputCallback(
-        std::bind(&LcdModule::fillBackendQueue,
-                  std::ref(*CHECK_NOTNULL(lcd_module_.get())),
-                  std::placeholders::_1));
-
-    auto& lcd_module = lcd_module_;
-    vio_frontend_module_->registerOutputCallback(
-        std::bind(&LcdModule::fillFrontendQueue,
-                  std::ref(*CHECK_NOTNULL(lcd_module_.get())),
-                  std::placeholders::_1));
-  }
-
   if (FLAGS_visualize) {
     visualizer_module_ = VIO::make_unique<VisualizerModule>(
         //! Send ouput of visualizer to the display_input_queue_
         &display_input_queue_,
         parallel_run_,
-        FLAGS_use_lcd,
         // Use given visualizer if any
         visualizer ? std::move(visualizer)
                    : VisualizerFactory::createVisualizer(
@@ -194,13 +172,6 @@ StereoImuPipeline::StereoImuPipeline(const VioParams& params,
     if (mesher_module_) {
       mesher_module_->registerOutputCallback(
           std::bind(&VisualizerModule::fillMesherQueue,
-                    std::ref(*CHECK_NOTNULL(visualizer_module_.get())),
-                    std::placeholders::_1));
-    }
-
-    if (lcd_module_) {
-      lcd_module_->registerOutputCallback(
-          std::bind(&VisualizerModule::fillLcdQueue,
                     std::ref(*CHECK_NOTNULL(visualizer_module_.get())),
                     std::placeholders::_1));
     }

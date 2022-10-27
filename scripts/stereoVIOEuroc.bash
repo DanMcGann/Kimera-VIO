@@ -9,8 +9,6 @@ DATASET_PATH="/path/to/euroc/dataset"
 # Specify: 0 to run on EuRoC data, 1 to run on Kitti (not supported)
 DATASET_TYPE=0
 
-# Specify: 1 to enable the LoopClosureDetector, 0 to not.
-USE_LCD=0
 
 # Specify: 1 to enable logging of output files, 0 to not.
 LOG_OUTPUT=0
@@ -52,8 +50,6 @@ else
           echo "Using dataset type: $DATASET_TYPE"
           echo "0 is for euroc and 1 is for kitti"
           shift ;;
-      -lcd) USE_LCD=1
-           echo "Run VIO with LoopClosureDetector!" ;;
       -log) LOG_OUTPUT=1
            echo "Logging output!";;
       --)
@@ -91,7 +87,6 @@ $BUILD_PATH/stereoVIOEuroc \
   --initial_k=50 \
   --final_k=10000 \
   --params_folder_path="$PARAMS_PATH" \
-  --use_lcd="$USE_LCD" \
   --vocabulary_path="$VOCABULARY_PATH/ORBvoc.yml" \
   --flagfile="$PARAMS_PATH/flags/stereoVIOEuroc.flags" \
   --flagfile="$PARAMS_PATH/flags/Mesher.flags" \
