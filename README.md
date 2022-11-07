@@ -10,6 +10,25 @@
   </a>
 </div>
 
+
+# Dan's Install Instructions
+
+* Initialize the submodules
+* `cd gtsam`
+* `git checkout e5866799dff48239573cdd84964180867e50edd2`
+* `mkdir build && cd build`
+* `cmake -DGTSAM_BUILD_TESTS=OFF -DGTSAM_BUILD_EXAMPLES_ALWAYS=OFF -DCMAKE_BUILD_TYPE=Release -DGTSAM_BUILD_UNSTABLE=ON -DGTSAM_POSE3_EXPMAP=ON -DGTSAM_ROT3_EXPMAP=ON -DGTSAM_TANGENT_PREINTEGRATION=OFF ..`
+* `make`
+
+* `cd opengv`
+* `mkdir build && cd build`
+* `cmake -DCMAKE_BUILD_TYPE=Release -DEIGEN_INCLUDE_DIRS=/home/daniel/Development/arl_distributed/robust-slam-real-world-experiments/pipelines/vio/Kimera-deps/gtsam/gtsam/3rdparty/Eigen -DEIGEN_INCLUDE_DIR=/home/daniel/Development/arl_distributed/robust-slam-real-world-experiments/pipelines/vio/Kimera-deps/gtsam/gtsam/3rdparty/Eigen ..`
+
+
+* `cd Kimera-VIO`
+* `mkdir build && cd build`
+* `cmake -DCMAKE_BUILD_TYPE=Release -DGTSAM_DIR=/home/daniel/Development/arl_distributed/robust-slam-real-world-experiments/pipelines/vio/Kimera-deps/gtsam/build -DGTSAM_INCLUDE_DIR=/home/daniel/Development/arl_distributed/robust-slam-real-world-experiments/pipelines/vio/Kimera-deps/gtsam/gtsam/ -DGTSAM_UNSTABLE_DIR=/home/daniel/Development/arl_distributed/robust-slam-real-world-experiments/pipelines/vio/Kimera-deps/gtsam/build -DGTSAM_UNSTABLE_INCLUDE_DIR=/home/daniel/Development/arl_distributed/robust-slam-real-world-experiments/pipelines/vio/Kimera-deps/gtsam/gtsam_unstable/ -Dopengv_DIR=/home/daniel/Development/arl_distributed/robust-slam-real-world-experiments/pipelines/vio/Kimera-deps/opengv/build ..`
+
 # Kimera-VIO: Open-Source Visual Inertial Odometry
 
 [![Build Status](http://ci-sparklab.mit.edu:8080/job/MIT-SPARK-Kimera/job/master/badge/icon)](http://ci-sparklab.mit.edu:8080/job/MIT-SPARK-Kimera/job/master/)
