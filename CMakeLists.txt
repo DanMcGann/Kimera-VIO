@@ -6,7 +6,6 @@ project(kimera_vio VERSION 1.0 LANGUAGES CXX C)
 set(GFLAGS_PREFER_EXPORTED_GFLAGS_CMAKE_CONFIGURATION TRUE)
 set(GLOG_PREFER_EXPORTED_GLOG_CMAKE_CONFIGURATION TRUE)
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
-
 IF(APPLE)
     # Fix linking on 10.14+. See https://stackoverflow.com/questions/54068035
     LINK_DIRECTORIES(/usr/local/lib)
@@ -32,6 +31,7 @@ endif()
 find_package(Gflags REQUIRED)
 find_package(Glog 0.3.5 REQUIRED)
 find_package(GTSAM REQUIRED)
+find_package(GTSAM_UNSTABLE REQUIRED)
 find_package(opengv REQUIRED)
 find_package(OpenCV REQUIRED)
 # Pangolin is optional
@@ -45,32 +45,6 @@ endif()
 
 ### External Dependencies
 include(ExternalProject)
-
-### Download and unzip the vocabularly file
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/vocabulary/ORBvoc.yml)
-  message(STATUS "Downloading vocabulary file from dropbox.")
-  file(DOWNLOAD
-       http://www.dropbox.com/s/lyo0qgbdxn6eg6o/ORBvoc.zip?dl=1
-       ${CMAKE_CURRENT_SOURCE_DIR}/vocabulary/ORBvoc.zip
-       SHOW_PROGRESS
-       STATUS orbvoc_download_success
-       TIMEOUT 60)
-  if(orbvoc_download_success)
-    message(STATUS "Unzipping vocabulary file.")
-
-    execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_SOURCE_DIR}/vocabulary/ORBvoc.zip
-                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/vocabulary/)
-    message(STATUS "Moving vocabulary file.")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory
-                    ${CMAKE_CURRENT_SOURCE_DIR}/vocabulary/ORBvoc/
-                    ${CMAKE_CURRENT_SOURCE_DIR}/vocabulary/)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_SOURCE_DIR}/vocabulary/ORBvoc/)
-  else(orbvoc_download_success)
-    message(STATUS "Failed to download vocabulary file. Please download manually.")
-  endif(orbvoc_download_success)
-else()
-  message(STATUS "Vocabulary file exists, will not download.")
-endif()
 
 ### Compile the code
 add_library(${PROJECT_NAME} SHARED "")
@@ -118,16 +92,14 @@ add_subdirectory(src/visualizer)
 add_subdirectory(include/kimera-vio/third_party/triangle)
 add_subdirectory(src/third_party/triangle)
 
-target_link_libraries(${PROJECT_NAME}
-  PRIVATE
-    opengv
-  PUBLIC
+target_link_libraries(${PROJECT_NAME} 
     Boost::boost
     ${OpenCV_LIBRARIES}
     ${GFLAGS_LIBRARIES}
     ${GLOG_LIBRARIES}
     gtsam
     gtsam_unstable
+    opengv
 )
 target_include_directories(${PROJECT_NAME}
   PUBLIC
@@ -168,7 +140,7 @@ target_compile_features(${PROJECT_NAME} PUBLIC
 add_library(kimera_vio::kimera_vio ALIAS kimera_vio)
 
 add_executable(stereoVIOEuroc ./examples/KimeraVIO.cpp)
-target_link_libraries(stereoVIOEuroc PUBLIC kimera_vio::kimera_vio)
+target_link_libraries(stereoVIOEuroc PUBLIC kimera_vio::kimera_vio gtsam gtsam_unstable)
 
 ############################### TESTS ##########################################
 ### Add testing
@@ -256,7 +228,7 @@ if(KIMERA_BUILD_TESTS)
     tests/testOnlineAlignment.cpp
     tests/testOpticalFlowPredictor.cpp
     )
-  target_link_libraries(testKimeraVIO gtest kimera_vio::kimera_vio)
+  target_link_libraries(testKimeraVIO gtest gtsam gtsam_unstable kimera_vio::kimera_vio)
 
   if(CMAKE_VERSION VERSION_LESS 3.10)
     enable_testing()
